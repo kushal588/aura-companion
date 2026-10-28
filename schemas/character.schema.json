@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.app/schemas/character.schema.json",
+  "title": "AURA character manifest",
+  "description": "A portable character package: metadata plus references to an avatar, prompt file and motion map. Contains no executable content. Mirrors src/character/characterSchema.ts.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "name"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,64}$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 60 },
+    "avatar": { "type": "string", "pattern": "^[^/\\\\]+\\.(vrm|glb)$" },
+    "promptFile": { "type": "string", "pattern": "^[^/\\\\]+\\.(md|txt)$" },
+    "voice": {
+      "type": "object",
+      "required": ["provider", "voiceId"],
+      "additionalProperties": false,
+      "properties": {
+        "provider": { "const": "gemini" },
+        "voiceId": { "type": "string", "maxLength": 64 }
+      }
+    },
+    "traits": {
+      "type": "object",
+      "required": ["curiosity", "playfulness", "talkativeness"],
+      "additionalProperties": false,
+      "properties": {
+        "curiosity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "playfulness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "talkativeness": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "motionMap": {
+      "type": "object",
+      "description": "Emotion label to animation clip names. Clips are looked up by name only; a model can never choose a filename.",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string", "pattern": "^[a-zA-Z0-9_ -]{1,64}$" }
+      }
+    },
+    "memoryScope": { "enum": ["user", "character"] },
+    "license": { "type": "string", "maxLength": 200 }
+  }
+}

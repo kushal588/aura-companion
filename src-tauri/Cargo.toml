@@ -1,0 +1,45 @@
+[package]
+name = "aura"
+version = "0.1.0"
+description = "AURA — customizable 3D AI character companion (local-first, BYOK)"
+authors = ["AURA contributors"]
+edition = "2021"
+rust-version = "1.77"
+license = "MIT"
+repository = "https://github.com/REPLACE_WITH_OWNER/aura"
+default-run = "aura"
+
+[lib]
+name = "aura_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-shell = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.32", features = ["bundled", "serde_json"] }
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+futures-util = "0.3"
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+thiserror = "2"
+log = "0.4"
+env_logger = "0.11"
+
+[features]
+# Tauri's custom protocol is required for asset loading in production builds.
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

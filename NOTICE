@@ -1,0 +1,40 @@
+AURA — third-party notices
+
+This project is licensed under the MIT License (see LICENSE).
+The following third-party components are used by the source code and keep their
+own licences. No third-party avatars, animation clips, voices or artwork are
+distributed with this repository.
+
+Runtime dependencies
+--------------------
+- React, React DOM — MIT — https://react.dev
+- Three.js — MIT — https://threejs.org
+- @pixiv/three-vrm — MIT — https://github.com/pixiv/three-vrm
+- @pixiv/three-vrm-animation — MIT — https://github.com/pixiv/three-vrm
+- zustand — MIT — https://github.com/pmndrs/zustand
+- @tauri-apps/api — MIT/Apache-2.0 — https://tauri.app
+
+Native (Rust) dependencies
+--------------------------
+- tauri — MIT/Apache-2.0 — https://tauri.app
+- rusqlite (SQLite) — MIT; SQLite itself is public domain — https://sqlite.org
+- keyring — MIT/Apache-2.0 — https://github.com/hwchen/keyring-rs
+- reqwest — MIT/Apache-2.0 — https://github.com/seanmonstar/reqwest
+- tokio — MIT — https://tokio.rs
+- tokio-tungstenite — MIT — https://github.com/snapview/tokio-tungstenite
+- serde, serde_json — MIT/Apache-2.0 — https://serde.rs
+- thiserror — MIT/Apache-2.0 — https://github.com/dtolnay/thiserror
+
+Development dependencies
+------------------------
+- Vite — MIT — https://vitejs.dev
+- Vitest — MIT — https://vitest.dev
+- TypeScript — Apache-2.0 — https://www.typescriptlang.org
+- ESLint — MIT — https://eslint.org
+- typescript-eslint — MIT — https://typescript-eslint.io
+- Prettier — MIT — https://prettier.io
+
+Services (not bundled)
+----------------------
+- Google Gemini API — the user supplies their own API key and accepts Google's
+  terms. No developer-owned key is shipped. https://ai.google.dev/gemini-api/terms

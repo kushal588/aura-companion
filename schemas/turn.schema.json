@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aura.app/schemas/turn.schema.json",
+  "title": "AURA structured turn",
+  "description": "The only channel through which the language model may steer the avatar. Mirrors src/types/turn.ts, the allowlists in src/types/emotion.ts and the validator in src/conversation/ResponseValidator.ts.",
+  "type": "object",
+  "required": ["schemaVersion", "turnId", "segments"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "turnId": { "type": "string", "maxLength": 64 },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "emotion", "intensity", "expression", "gesture", "voice"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,32}$" },
+          "text": { "type": "string", "minLength": 1, "maxLength": 1200 },
+          "emotion": {
+            "enum": [
+              "neutral",
+              "happy",
+              "excited",
+              "sad",
+              "concerned",
+              "angry",
+              "confused",
+              "curious",
+              "surprised",
+              "playful",
+              "thinking",
+              "sleepy"
+            ]
+          },
+          "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "expression": { "enum": ["neutral", "happy", "sad", "angry", "surprised", "relaxed"] },
+          "gesture": {
+            "enum": [
+              "none",
+              "wave",
+              "nod",
+              "nod_slow",
+              "shake_head",
+              "head_tilt",
+              "celebrate",
+              "shrug",
+              "point_up",
+              "thumb_up",
+              "lean_in",
+              "think_pose"
+            ]
+          },
+          "voice": {
+            "type": "object",
+            "required": ["style", "pace"],
+            "additionalProperties": false,
+            "properties": {
+              "style": { "type": "string", "maxLength": 120 },
+              "pace": { "enum": ["slow", "normal", "fast"] }
+            }
+          }
+        }
+      }
+    },
+    "memoryCandidates": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["content", "category", "scope", "confidence", "importance"],
+        "additionalProperties": false,
+        "properties": {
+          "content": { "type": "string", "minLength": 3, "maxLength": 280 },
+          "category": {
+            "enum": [
+              "identity",
+              "preference",
+              "project",
+              "milestone",
+              "relationship",
+              "health",
+              "schedule",
+              "other"
+            ]
+          },
+          "scope": { "enum": ["user", "character"] },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "importance": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

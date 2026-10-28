@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+dist-ssr/
+build/
+coverage/
+*.tsbuildinfo
+
+# rust / tauri
+src-tauri/target/
+src-tauri/gen/
+src-tauri/.cargo/
+target/
+
+# secrets — NEVER commit credentials. This app is BYOK and stores keys in the OS
+# credential store at runtime; nothing secret belongs in the repository.
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.keystore
+*.jks
+keystore.properties
+
+# local runtime data (app data dirs are outside the source tree; kept here for dev safety)
+.aura-data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+exports/
+logs/
+
+# editors / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# verification export from the license/security audit
+license-report.json
