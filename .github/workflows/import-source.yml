@@ -30,10 +30,10 @@ jobs:
         run: |
           git config user.name "AURA"
           git config user.email "aura@users.noreply.github.com"
-          git add -A
+          git add -A -f
           if git diff --cached --quiet; then
             echo "Nothing to import"
           else
-            git commit -m "Import AURA source with Cloudflare Pages setup"
+            git commit -m "Add ready-to-publish build output"
             git push
           fi
