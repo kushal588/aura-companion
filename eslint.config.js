@@ -10,6 +10,8 @@ export default tseslint.config(
       'src-tauri/target/**',
       'src-tauri/gen/**',
       'logs/**',
+      // local deliverables (prebuilt zips/folders), not source
+      'artifacts/**',
     ],
   },
   js.configs.recommended,
@@ -31,17 +33,6 @@ export default tseslint.config(
     files: ['tests/**/*.ts', '**/*.test.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-    },
-  },
-  {
-    files: ['worker.js'],
-    languageOptions: {
-      globals: {
-        URL: 'readonly',
-        Request: 'readonly',
-        Response: 'readonly',
-        fetch: 'readonly',
-      },
     },
   },
 );
