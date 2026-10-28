@@ -1,0 +1,128 @@
+name: Release
+
+# Tagged releases only: v0.1.0, v1.0.0, ...
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  source-archive:
+    name: Source archives
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Verify the tagged commit builds and passes tests
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+      - name: Pack source
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          mkdir -p release
+          git archive --format=zip --prefix="AURA-source-${version}/" -o "release/AURA-source-v${version}.zip" HEAD
+          git archive --format=tar.gz --prefix="AURA-source-${version}/" -o "release/AURA-source-v${version}.tar.gz" HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-archives
+          path: release/*
+
+  linux:
+    name: Linux bundles (AppImage, deb)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf libssl-dev
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - name: Build bundles
+        run: |
+          npm run icons
+          npm run tauri:build -- --bundles appimage,deb
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-bundles
+          path: |
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
+
+  windows:
+    name: Windows installer (NSIS)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - name: Build installer
+        run: |
+          npm run icons
+          npm run tauri:build -- --bundles nsis
+        env:
+          # Optional: set these repository secrets to sign the installer.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: src-tauri/target/release/bundle/nsis/*.exe
+
+  publish:
+    name: Publish release
+    needs: [source-archive, linux, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Checksums
+        run: |
+          set -euo pipefail
+          cd artifacts
+          find . -type f \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.exe' \) \
+            -exec sha256sum {} + | sed 's|\./||' | sort -k2 > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*.zip
+            artifacts/**/*.tar.gz
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.exe
+            artifacts/SHA256SUMS.txt
+          generate_release_notes: true
+          body: |
+            AURA release build.
+
+            - Web/desktop bundles are built from the tagged commit by CI.
+            - Android APKs are not built here: they need an Android signing identity.
+            - Verify downloads against `SHA256SUMS.txt`.
+
+            Remember to add your own Gemini API key after installing. No key is bundled.
