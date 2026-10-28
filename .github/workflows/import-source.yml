@@ -1,0 +1,39 @@
+name: Import project source
+
+# One-shot bootstrap: pulls the full AURA source archive and commits it into this
+# repository. Kept manual-only on purpose so later pushes never overwrite the tree.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download source archive
+        run: curl -fsSL --retry 3 --retry-delay 2 -o /tmp/aura.zip "https://site-f22de81210a64723a1dc85076c767467.freebuff.page/aura-import.zip"
+
+      - name: Unpack into the repository
+        run: |
+          mkdir -p /tmp/aura
+          unzip -q /tmp/aura.zip -d /tmp/aura
+          cp -a /tmp/aura/. .
+
+      - name: Commit and push
+        run: |
+          git config user.name "AURA"
+          git config user.email "aura@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to import"
+          else
+            git commit -m "Import AURA source with Cloudflare Pages setup"
+            git push
+          fi
